@@ -36,26 +36,20 @@ A **Decision-Aware AI system** that predicts the type of waste and suggests prop
 
 ## 📱 MobileNetV2 – Technical Overview
 
-**MobileNetV2** is a lightweight Convolutional Neural Network (CNN) optimized for speed and efficiency, making it ideal for mobile and edge devices. It achieves competitive accuracy while being faster and smaller than traditional CNNs like VGG or ResNet.
+MobileNetV2 is a lightweight Convolutional Neural Network (CNN) optimized for speed and efficiency, ideal for mobile and edge devices. It achieves competitive accuracy while being faster and smaller than traditional CNNs like VGG or ResNet.
 
 ### Key Features
 
 1. **Inverted Residuals with Linear Bottlenecks**  
    Preserves essential features while reducing computation.  
-   Formula:  
-   \[
-   \text{Output} = \text{LinearProjection}(\text{DepthwiseConv}(\text{Expansion}(X)))
-   \]
+   Output = LinearProjection(DepthwiseConv(Expansion(X)))
 
 2. **Depthwise Separable Convolutions**  
    Splits convolution into depthwise and pointwise layers to reduce parameters.  
-   Formula:  
-   \[
-   \text{Conv}_{DW+PW}(X) = \text{Pointwise}(\text{Depthwise}(X))
-   \]
+   Conv_DW+PW(X) = Pointwise(Depthwise(X))
 
 3. **ReLU6 Activation**  
-   Clipped ReLU for improved performance on low-precision hardware.
+   Clipped ReLU used for improved performance on low-precision hardware.
 
 ### Advantages over Traditional CNNs
 
@@ -68,22 +62,20 @@ A **Decision-Aware AI system** that predicts the type of waste and suggests prop
 
 ### Why It Was Used in This Project
 
-- **Efficiency:** Enables fast real-time predictions in the Streamlit app.  
-- **Transfer Learning:** Pre-trained on ImageNet, reducing training time.  
-- **Lightweight:** Suitable for 4-class waste image classification on limited hardware.
+- Efficiency: Fast real-time predictions in the Streamlit app.  
+- Transfer Learning: Pre-trained on ImageNet, reducing training time.  
+- Lightweight: Suitable for 4-class waste image classification on limited hardware.
 
 ### Project Implementation
 
-- **Base Model:** `MobileNetV2(weights='imagenet', include_top=False)`  
-- **Custom Layers:** `GlobalAveragePooling2D → Dense(128) → Dropout(0.3) → Dense(4, softmax)`  
-- **Loss Function:** `categorical_crossentropy`  
-- **Optimizer:** `Adam` with learning rate 0.001  
+- Base Model: MobileNetV2(weights='imagenet', include_top=False)  
+- Custom Layers: GlobalAveragePooling2D → Dense(128) → Dropout(0.3) → Dense(4, softmax)  
+- Loss Function: categorical_crossentropy  
+- Optimizer: Adam with learning rate 0.001  
 
-**Final Prediction Formula (Softmax):**  
-\[
-\hat{y}_i = \frac{e^{z_i}}{\sum_{j=1}^{4} e^{z_j}}, \quad i = 1..4
-\]  
-where \(z_i\) is the output of the last dense layer for class \(i\).
+**Final Prediction (Softmax formula):**  
+predicted_class_probability_i = exp(z_i) / (exp(z_1) + exp(z_2) + exp(z_3) + exp(z_4))  
+where z_i is the output of the last dense layer for class i.
 
 
 ---
@@ -91,34 +83,6 @@ where \(z_i\) is the output of the last dense layer for class \(i\).
 # ♻️ Smart Waste Decision System
 
 A **Decision-Aware AI system** that predicts the type of waste and suggests proper recycling actions using **deep learning and rule-based decision logic**.
-
----
-
-## 🛠️ Tech Stack
-
-| Component             | Libraries / Tools                                  |
-|----------------------|---------------------------------------------------|
-| Data Handling         | pandas, numpy                                     |
-| Image Preprocessing   | tensorflow.keras.preprocessing, PIL              |
-| Deep Learning         | TensorFlow, Keras, MobileNetV2                   |
-| Model Persistence     | h5 model files                                    |
-| Visualization         | matplotlib, seaborn                               |
-| Web Dashboard         | Streamlit                                        |
-| Database              | SQLite                                           |
-
----
-
-## 🛠️ Tech Stack
-
-| Component             | Libraries / Tools                                  |
-|----------------------|---------------------------------------------------|
-| Data Handling         | pandas, numpy                                     |
-| Image Preprocessing   | tensorflow.keras.preprocessing, PIL              |
-| Deep Learning         | TensorFlow, Keras, MobileNetV2                   |
-| Model Persistence     | h5 model files                                    |
-| Visualization         | matplotlib, seaborn                               |
-| Web Dashboard         | Streamlit                                        |
-| Database              | SQLite                                           |
 
 ---
 
