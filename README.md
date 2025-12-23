@@ -14,61 +14,202 @@ You can try the project online using the deployed Streamlit app:
 
 ---
 
-## **Project Purpose**
+# ♻️ Smart Waste Decision System
 
-* Classifies waste images into categories: `cardboard`, `glass`, `metal`, `plastic`.
-* Assesses **prediction confidence**.
-* Provides **recycling recommendations** based on predicted waste type.
-* Validates whether the waste was **thrown in the correct bin**.
-* Stores predictions in a **SQLite database** for tracking.
+A **Decision-Aware AI system** that predicts the type of waste and suggests proper recycling actions using **deep learning and rule-based decision logic**.
 
 ---
 
-## **Workflow / Pipeline**
+## 🛠️ Tech Stack
 
-1. **Dataset Preparation**
-   * Raw waste images in `dataset/raw/` organized by class.
-   * Split into train, validation, test sets (70/15/15).
-   * Output: `dataset/dataset/train/`, `validation/`, `test/`.
-
-2. **Model Training**
-   * Pretrained **MobileNetV2** backbone.
-   * Custom layers: GlobalAveragePooling → Dense(128) → Dropout → Dense(4 softmax)
-   * Image augmentation via `ImageDataGenerator`.
-   * Output: `waste_classifier_model.h5`.
-
-3. **Model Evaluation**
-   * Test dataset used to compute **accuracy**, **classification report**, **confusion matrix**.
-
-4. **Streamlit App**
-   * Upload image → model predicts waste type + confidence.
-   * Provides **recycling recommendations**.
-   * Checks if user-selected bin matches predicted class.
-   * Stores prediction in **SQLite database** (`waste_predictions.db`).
+| Component             | Libraries / Tools                                  |
+|----------------------|---------------------------------------------------|
+| Data Handling         | pandas, numpy                                     |
+| Image Preprocessing   | tensorflow.keras.preprocessing, PIL              |
+| Deep Learning         | TensorFlow, Keras, MobileNetV2                   |
+| Model Persistence     | h5 model files                                    |
+| Visualization         | matplotlib, seaborn                               |
+| Web Dashboard         | Streamlit                                        |
+| Database              | SQLite                                           |
 
 ---
 
-## **Files and Their Roles**
+## 📱 MobileNetV2 – Technical Overview
 
-| File / Folder                                    | Purpose                                                                         |
-| ------------------------------------------------ | ------------------------------------------------------------------------------- |
-| `app.py`                                         | Streamlit web app for real-time waste classification and decision-making.       |
-| `waste_classifier_model.h5`                      | Trained deep learning model for waste classification.                           |
-| `dataset/raw/`                                   | Original waste images separated by class.                                       |
-| `dataset/dataset/train/`, `validation/`, `test/` | Split dataset ready for model training.                                         |
-| `database_setup.py`                              | Creates SQLite database and table to store predictions.                         |
-| `dataset_split.py`                               | Splits raw images into train/validation/test folders automatically.             |
-| `train_model.py`                                 | Trains MobileNetV2-based CNN on the dataset, saves `waste_classifier_model.h5`. |
-| `requirements.txt`                               | Python dependencies for running the app.                                        |
+**MobileNetV2** is a lightweight Convolutional Neural Network (CNN) optimized for speed and efficiency, making it ideal for mobile and edge devices. It achieves competitive accuracy while being faster and smaller than traditional CNNs like VGG or ResNet.
+
+### Key Features
+
+1. **Inverted Residuals with Linear Bottlenecks**  
+   Preserves essential features while reducing computation.  
+   Formula:  
+   \[
+   \text{Output} = \text{LinearProjection}(\text{DepthwiseConv}(\text{Expansion}(X)))
+   \]
+
+2. **Depthwise Separable Convolutions**  
+   Splits convolution into depthwise and pointwise layers to reduce parameters.  
+   Formula:  
+   \[
+   \text{Conv}_{DW+PW}(X) = \text{Pointwise}(\text{Depthwise}(X))
+   \]
+
+3. **ReLU6 Activation**  
+   Clipped ReLU for improved performance on low-precision hardware.
+
+### Advantages over Traditional CNNs
+
+| Feature                     | MobileNetV2 | Traditional CNNs |
+|-------------------------------|-------------|----------------|
+| Parameters & FLOPS            | Very low    | High           |
+| Inference Speed               | Fast        | Slower         |
+| Accuracy                      | Competitive | High but heavy |
+| Edge Deployment               | Excellent   | Limited        |
+
+### Why It Was Used in This Project
+
+- **Efficiency:** Enables fast real-time predictions in the Streamlit app.  
+- **Transfer Learning:** Pre-trained on ImageNet, reducing training time.  
+- **Lightweight:** Suitable for 4-class waste image classification on limited hardware.
+
+### Project Implementation
+
+- **Base Model:** `MobileNetV2(weights='imagenet', include_top=False)`  
+- **Custom Layers:** `GlobalAveragePooling2D → Dense(128) → Dropout(0.3) → Dense(4, softmax)`  
+- **Loss Function:** `categorical_crossentropy`  
+- **Optimizer:** `Adam` with learning rate 0.001  
+
+**Final Prediction Formula (Softmax):**  
+\[
+\hat{y}_i = \frac{e^{z_i}}{\sum_{j=1}^{4} e^{z_j}}, \quad i = 1..4
+\]  
+where \(z_i\) is the output of the last dense layer for class \(i\).
+
 
 ---
 
-## **Key Features**
+# ♻️ Smart Waste Decision System
 
-* **Deep Learning + Decision Rules**: CNN classification combined with rule-based recycling suggestions.  
-* **Confidence Threshold**: Warns if prediction confidence is below 70%.  
-* **Interactive Feedback**: Checks if the uploaded waste is thrown in the correct bin.  
-* **Database Logging**: Stores predictions in `waste_predictions.db` for tracking and analysis.  
-* **Augmented Dataset**: Uses image augmentation to improve model generalization.  
+A **Decision-Aware AI system** that predicts the type of waste and suggests proper recycling actions using **deep learning and rule-based decision logic**.
 
+---
 
+## 🛠️ Tech Stack
+
+| Component             | Libraries / Tools                                  |
+|----------------------|---------------------------------------------------|
+| Data Handling         | pandas, numpy                                     |
+| Image Preprocessing   | tensorflow.keras.preprocessing, PIL              |
+| Deep Learning         | TensorFlow, Keras, MobileNetV2                   |
+| Model Persistence     | h5 model files                                    |
+| Visualization         | matplotlib, seaborn                               |
+| Web Dashboard         | Streamlit                                        |
+| Database              | SQLite                                           |
+
+---
+
+## 🛠️ Tech Stack
+
+| Component             | Libraries / Tools                                  |
+|----------------------|---------------------------------------------------|
+| Data Handling         | pandas, numpy                                     |
+| Image Preprocessing   | tensorflow.keras.preprocessing, PIL              |
+| Deep Learning         | TensorFlow, Keras, MobileNetV2                   |
+| Model Persistence     | h5 model files                                    |
+| Visualization         | matplotlib, seaborn                               |
+| Web Dashboard         | Streamlit                                        |
+| Database              | SQLite                                           |
+
+---
+
+## 📂 Dataset Preparation
+
+1. **Raw Dataset Structure**:   dataset/raw/, cardboard/, glass/, metal/, plastic/
+2. **Split Dataset**: Training (70%), Validation (15%), Test (15%)  
+3. **Data Augmentation**:  
+- Rescale (1./255)  
+- Rotation, width/height shift, horizontal flip, zoom  
+
+---
+
+## 🧠 Model Architecture
+
+**Base Model**: MobileNetV2 (pre-trained on ImageNet, top layers removed)  
+
+**Custom Head**:
+- GlobalAveragePooling2D
+- Dense(128, activation='relu')
+- Dropout(0.3)
+- Dense(4, activation='softmax') → 4 classes: `cardboard`, `glass`, `metal`, `plastic`
+
+**Training Details**:
+- Loss: Categorical Crossentropy
+- Optimizer: Adam, LR = 0.001
+- Batch Size: 16
+- Epochs: 20
+- Input Shape: (224, 224, 3)
+- Metrics: Accuracy
+
+**Python Snippet**:
+
+```python
+base_model = MobileNetV2(weights='imagenet', include_top=False, input_shape=(224,224,3))
+base_model.trainable = False
+
+x = base_model.output
+x = GlobalAveragePooling2D()(x)
+x = Dense(128, activation='relu')(x)
+x = Dropout(0.3)(x)
+predictions = Dense(4, activation='softmax')(x)
+
+model = Model(inputs=base_model.input, outputs=predictions)
+model.compile(optimizer=Adam(0.001), loss='categorical_crossentropy', metrics=['accuracy'])
+````
+
+## 🏋️ Training Pipeline
+
+1. **Load datasets**: Training and validation datasets are loaded using `ImageDataGenerator`.  
+2. **Data Augmentation**: Applied to training data (rotation, shift, flip, zoom).  
+3. **Train Model**: Train the model for 20 epochs.  
+4. **Save Model**:  
+```python
+model.save("waste_classifier_model.h5")
+```
+
+----
+
+## 📈 Plot Training History
+
+- Accuracy  
+- Loss  
+
+---
+
+## 🧪 Model Evaluation
+
+1. **Evaluate on Test Set**:
+```python
+y_pred = model.predict(test_generator)
+y_pred_classes = np.argmax(y_pred, axis=1)
+y_true = test_generator.classes
+````
+
+------
+
+# 🖥️ Streamlit Deployment
+
+**app.py Features:**
+
+- Upload waste image.
+- Select the bin type manually.
+- Predict waste type using trained model.
+- Show confidence and recommendation:
+  - Low confidence (<70%) → manual check
+  - High confidence → show recyclable suggestion
+- Validate if user selected the correct bin.
+- Display results interactively.
+
+**Run the App:**
+```bash
+streamlit run app.py
+```
