@@ -1,31 +1,33 @@
-## **Live Demo**
+# Decision-Aware Waste Classification using Transfer Learning
 
-You can try the project online using the deployed Streamlit app:  
+## Live Demo
+You can try the deployed Streamlit application here:  
+🔗 https://nagane09-decision-aware-waste-classification-mobilen-app-przxfn.streamlit.app/
 
-[Open Live Demo – https://nagane09-decision-aware-waste-classification-mobilen-app-przxfn.streamlit.app/
-
-* Upload waste images to see real-time predictions, confidence, and recycling guidance.
+Users can upload waste images to obtain:
+- Predicted material category
+- Model confidence
+- Decision-aware feedback for recycling guidance
 
 ---
 
-# Decision-Aware Waste Classification using Transfer Learning
-
 ## Abstract
-Efficient waste segregation is critical for sustainable recycling systems. This project presents a **decision-aware image classification framework** for automatic waste material identification using **convolutional neural networks (CNNs)** and **transfer learning**. A lightweight **MobileNetV2** architecture is fine-tuned to classify waste images into material categories such as *plastic, metal, glass, and cardboard*. The system incorporates **confidence-based decision logic** to flag uncertain predictions and potential incorrect disposal actions. Comprehensive evaluation using accuracy, precision, recall, F1-score, and confusion matrices demonstrates the effectiveness of the proposed approach.
+Efficient waste segregation is essential for sustainable recycling systems. This project presents a **decision-aware image classification framework** for automatic waste material identification using **convolutional neural networks (CNNs)** and **transfer learning**. A lightweight **MobileNetV2** model is employed to classify waste images into *plastic, metal, glass, and cardboard*. The system integrates **confidence-based decision logic** to identify low-confidence predictions and potential incorrect disposal actions. Performance is evaluated using accuracy, precision, recall, F1-score, and confusion matrix analysis.
 
 ---
 
 ## 1. Problem Definition
-Manual waste segregation is error-prone and inefficient. The objective of this work is to design a **computer vision–based classification system** that:
-- Automatically identifies waste material types from images
-- Minimizes misclassification through decision-aware confidence thresholds
-- Balances **accuracy, inference speed, and model complexity** for real-world deployment
+Manual waste segregation is inefficient and error-prone. The goal of this project is to design an AI-based system that:
 
-Formally, given an input image \( x \in \mathbb{R}^{224 \times 224 \times 3} \), the task is to learn a function  
-\[
-f(x; \theta) \rightarrow y, \quad y \in \{1, 2, \dots, C\}
-\]
-where \( C = 4 \) denotes the number of waste categories.
+- Automatically classifies waste material from images  
+- Reduces misclassification through confidence-aware decisions  
+- Balances accuracy and computational efficiency for real-world use  
+
+Formally, given an input image `x` of size 224 × 224 × 3, the model learns a mapping:
+
+f(x; θ) → y  
+
+where `y ∈ {cardboard, glass, metal, plastic}`.
 
 ---
 
@@ -33,214 +35,167 @@ where \( C = 4 \) denotes the number of waste categories.
 - **Classes:** Cardboard, Glass, Metal, Plastic  
 - **Source:** Public waste image dataset (Kaggle)  
 - **Total images:** ~12,000  
-- **Data split:**
-  - Training: 70%
-  - Validation: 15%
-  - Testing: 15%
 
-Images are resized to \(224 \times 224\) and normalized to \([0,1]\).
+### Data Split
+- Training: 70%  
+- Validation: 15%  
+- Testing: 15%  
 
----
-
-## 3. Data Preprocessing & Augmentation
-To improve generalization and reduce overfitting, the following augmentations were applied during training:
-
-- Random rotation (\(\pm20^\circ\))
-- Horizontal flipping
-- Width and height shifts
-- Zoom augmentation
-
-Let \( x_i \) denote an input image. Augmentation applies a stochastic transformation:
-\[
-\tilde{x}_i = T(x_i), \quad T \sim \mathcal{A}
-\]
-
----
-## Dataset Handling and Preprocessing
-
-### Dataset Organization
-Raw images are organized class-wise and programmatically restructured into
-training, validation, and testing subsets to avoid data leakage.
-
-\[
-D = D_{train} \cup D_{val} \cup D_{test}, \quad
-D_{train} \cap D_{val} \cap D_{test} = \varnothing
-\]
-
-The dataset is split using a **70/15/15** ratio to ensure robust evaluation.
-
-### Automated Dataset Splitting
-A reproducible Python pipeline is implemented to:
-- Randomly shuffle images within each class
-- Allocate samples to train, validation, and test sets
-- Preserve class balance across splits
-
-This guarantees unbiased generalization assessment.
+Images are resized to 224 × 224 and normalized to the range [0, 1].
 
 ---
 
-### Image Preprocessing
-Each image \( x \) undergoes the following transformations:
+## 3. Dataset Handling & Preprocessing
 
-- Resizing to \(224 \times 224\)
-- Pixel normalization:
-\[
-x' = \frac{x}{255}
-\]
+### 3.1 Dataset Organization
+Raw images are organized class-wise and programmatically split into training, validation, and test sets to avoid data leakage.
 
-These steps align the input distribution with ImageNet pre-training statistics.
+The dataset satisfies:
+- No overlap between train, validation, and test sets  
+- Balanced class distribution across splits  
+
+A reproducible Python pipeline is used for shuffling and splitting.
 
 ---
 
-### Data Augmentation Strategy
-To reduce overfitting and improve robustness, stochastic augmentations are applied during training:
+### 3.2 Image Preprocessing
+Each image undergoes:
+- Resizing to 224 × 224  
+- Pixel normalization using:
 
-- Rotation (\(\pm20^\circ\))
+x_normalized = x / 255  
+
+This ensures compatibility with ImageNet-pretrained weights.
+
+---
+
+### 3.3 Data Augmentation
+To improve generalization and reduce overfitting, the following augmentations are applied during training:
+
+- Random rotation (±20°)
 - Horizontal flipping
 - Width and height shifting
-- Zoom transformations
+- Zoom augmentation
 
-Let \( T \sim \mathcal{A} \) represent a random augmentation operator.  
-The augmented sample is defined as:
-\[
-\tilde{x} = T(x)
-\]
-
-Validation and test sets are **not augmented** to preserve evaluation integrity.
+Validation and test datasets are **not augmented** to preserve evaluation integrity.
 
 ---
 
-### Class Encoding
-Class labels are automatically encoded using categorical one-hot vectors:
-\[
-y \in \{0,1\}^C, \quad C = 4
-\]
-
-This encoding enables optimization using categorical cross-entropy loss.
+### 3.4 Class Encoding
+Class labels are automatically encoded into categorical one-hot vectors, enabling optimization using categorical cross-entropy loss.
 
 ---
 
-### Data Integrity Measures
-- Fixed random seed for reproducibility
-- No overlap between training, validation, and test samples
-- Class-wise sample distribution verified after splitting
+## 4. Technology Stack
 
----
-
-## Technology Stack
-
-### Programming & Core Libraries
-- **Python 3.x** – Primary programming language
-- **TensorFlow / Keras** – Model development and training
-- **NumPy** – Numerical computations
-- **Matplotlib** – Training and evaluation visualizations
-- **Scikit-learn** – Evaluation metrics (confusion matrix, classification report)
+### Programming & Libraries
+- **Python 3**
+- **TensorFlow / Keras**
+- **NumPy**
+- **Matplotlib**
+- **Scikit-learn**
 
 ### Deep Learning & Computer Vision
-- **MobileNetV2** – Pre-trained CNN backbone (ImageNet weights)
-- **Transfer Learning** – Feature reuse and fine-tuning strategy
-- **ImageDataGenerator** – Real-time data augmentation and preprocessing
+- **MobileNetV2 (ImageNet pre-trained)**
+- **Transfer Learning**
+- **ImageDataGenerator**
 
 ### Data Management
-- **SQLite** – Lightweight storage for prediction logs
-- **OS / Shutil / Random** – Dataset organization and splitting
+- **SQLite** – Logging image predictions
+- **OS / Shutil / Random** – Dataset handling
 
 ### Deployment & Tooling
 - **Streamlit** – Interactive inference interface
-- **Git / GitHub** – Version control and experiment tracking
+- **Git / GitHub** – Version control
 
 ---
 
-## 4. Model Architecture
+## 5. Model Architecture
 
-### 4.1 Base Network
-The backbone network is **MobileNetV2**, pre-trained on ImageNet. The final classification layers are replaced with task-specific layers.
+### 5.1 Base Network
+The model uses **MobileNetV2** as a frozen feature extractor.
 
 **Architecture:**
-- MobileNetV2 (frozen feature extractor)
+- MobileNetV2 (without top layers)
 - Global Average Pooling
 - Dense (128 units, ReLU)
 - Dropout (0.3)
 - Dense (Softmax, 4 classes)
 
-The final prediction is computed as:
-\[
-\hat{y} = \text{softmax}(Wx + b)
-\]
+Final prediction is computed as:
+
+ŷ = softmax(Wx + b)
 
 ---
 
-## 5. Training Configuration
+## 6. Training Configuration
 - **Optimizer:** Adam  
-- **Learning rate:** 0.001  
-- **Loss function:** Categorical Cross-Entropy  
-\[
-\mathcal{L} = -\sum_{c=1}^{C} y_c \log(\hat{y}_c)
-\]
-- **Batch size:** 16  
+- **Learning Rate:** 0.001  
+- **Loss Function:** Categorical Cross-Entropy  
+
+Loss is defined as:
+
+L = − Σ (y_c · log(ŷ_c)), for c = 1 to C  
+
+- **Batch Size:** 16  
 - **Epochs:** 20  
 
 ---
 
-## 6. Decision-Aware Classification
-To reduce incorrect disposal recommendations, a **confidence thresholding mechanism** is introduced.
-
-Let:
-\[
-p_{\max} = \max(\hat{y})
-\]
+## 7. Decision-Aware Classification
+To reduce incorrect disposal recommendations, a confidence-based decision mechanism is applied during inference.
 
 If:
-\[
-p_{\max} < \tau \quad (\tau = 0.6)
-\]
-the prediction is flagged as **low-confidence**, prompting user verification or rejection.
 
-This enables **wrong-bin detection** and improves reliability in real-world usage.
+max(predicted probability) < 0.6  
+
+the prediction is flagged as **low-confidence**, indicating uncertainty or potential misclassification.
+
+This enables:
+- Wrong-bin detection
+- Safer real-world predictions
+- Improved system reliability
 
 ---
 
-## 7. Evaluation Metrics
+## 8. Evaluation Metrics
 Model performance is evaluated using:
 
-- Accuracy
-- Precision
-- Recall
-- F1-score
-- Confusion Matrix
+- Accuracy  
+- Precision  
+- Recall  
+- F1-score  
+- Confusion Matrix  
 
-For each class \( c \):
-\[
-\text{Precision}_c = \frac{TP_c}{TP_c + FP_c}
-\]
-\[
-\text{Recall}_c = \frac{TP_c}{TP_c + FN_c}
-\]
-\[
-\text{F1}_c = 2 \cdot \frac{\text{Precision}_c \cdot \text{Recall}_c}{\text{Precision}_c + \text{Recall}_c}
-\]
+Metric definitions:
+
+Precision_c = TP_c / (TP_c + FP_c)  
+Recall_c = TP_c / (TP_c + FN_c)  
+
+F1_c = 2 · (Precision_c · Recall_c) / (Precision_c + Recall_c)
 
 ---
 
-## 8. Experimental Results
+## 9. Experimental Results
+- **Overall Accuracy:** 90.74%  
+- Consistent performance across all waste categories  
+- Higher confusion observed between *plastic* and *metal* due to visual similarity  
 
-- **Overall accuracy:** 90.74%
-- Strong performance across all material categories
-- Higher confusion observed between *plastic* and *metal* due to reflective surface similarity
-
-The confusion matrix provides detailed class-wise error analysis.
-
----
-
-## 9. Inference & Deployment
-A lightweight inference pipeline is implemented for real-time prediction. The trained model is deployed using **Streamlit**, allowing users to upload an image and receive:
-- Predicted material class
-- Confidence-aware decision output
-
-Deployment serves as a **demonstration interface** rather than the core contribution.
+Confusion matrix analysis provides detailed class-wise error insights.
 
 ---
 
-## 10. Conclusion
-This project demonstrates the effectiveness of **transfer learning–based CNNs** for waste material classification. The introduction of **decision-aware confidence logic** enhances reliability and makes the system suitable for practical waste management scenarios. Future work includes extending the framework to multi-modal inputs and edge-device optimization.
+## 10. Inference & Deployment
+The trained model is deployed using **Streamlit** for real-time inference. Users can upload an image and receive:
+
+- Predicted waste category  
+- Model confidence  
+- Decision-aware warning (if applicable)  
+
+Deployment is intended as a **demonstration interface**, not the primary contribution.
+
+---
+
+## 11. Conclusion
+This project demonstrates the effectiveness of **transfer learning–based CNNs** for automated waste classification. The introduction of **decision-aware confidence logic** improves robustness and reliability, making the system suitable for practical waste management scenarios. Future work includes model comparison, fine-tuning, and edge-device optimization.
 
