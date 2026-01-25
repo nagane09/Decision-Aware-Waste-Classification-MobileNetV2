@@ -11,191 +11,139 @@ Users can upload waste images to obtain:
 
 ---
 
-## Abstract
-Efficient waste segregation is essential for sustainable recycling systems. This project presents a **decision-aware image classification framework** for automatic waste material identification using **convolutional neural networks (CNNs)** and **transfer learning**. A lightweight **MobileNetV2** model is employed to classify waste images into *plastic, metal, glass, and cardboard*. The system integrates **confidence-based decision logic** to identify low-confidence predictions and potential incorrect disposal actions. Performance is evaluated using accuracy, precision, recall, F1-score, and confusion matrix analysis.
+## Introduction
+
+Urban waste management and recycling are critical for environmental sustainability. However, manual sorting is time-consuming and error-prone, leading to inefficiencies and contamination in recycling streams. This project proposes a **Smart Waste Decision System**, an AI-driven framework that combines deep learning for automated waste classification with rule-based decision reasoning to improve recycling practices.  
+
+The system leverages convolutional neural networks (CNNs) for image classification, integrates explainable AI techniques for interpretability, and incorporates a user-friendly interface for real-world deployment. This approach aims to enhance recycling efficiency, reduce human error, and provide actionable guidance for end users.
 
 ---
 
-## 1. Problem Definition
-Manual waste segregation is inefficient and error-prone. The goal of this project is to design an AI-based system that:
+## Objectives
 
-- Automatically classifies waste material from images  
-- Reduces misclassification through confidence-aware decisions  
-- Balances accuracy and computational efficiency for real-world use  
+The main objectives of the project are:  
 
-Formally, given an input image `x` of size 224 × 224 × 3, the model learns a mapping:
-
-f(x; θ) → y  
-
-where `y ∈ {cardboard, glass, metal, plastic}`.
+- To develop an image classification model capable of accurately distinguishing between key recyclable materials: cardboard, glass, metal, and plastic.  
+- To implement a rule-based decision layer that recommends appropriate recycling actions and bin selection.  
+- To enhance model transparency through explainability techniques, allowing users to understand model predictions.  
+- To create a system architecture that supports logging, auditing, and continuous improvement of the predictive model.
 
 ---
 
-## 2. Dataset Description
-- **Classes:** Cardboard, Glass, Metal, Plastic  
-- **Source:** Public waste image dataset (Kaggle)  
-- **Total images:** ~12,000  
+## Dataset
 
-### Data Split
-- Training: 70%  
-- Validation: 15%  
-- Testing: 15%  
+The dataset consists of images of recyclable materials categorized into four classes: cardboard, glass, metal, and plastic. The images were collected from multiple sources to capture real-world variability, including different lighting conditions, orientations, and object sizes.  
 
-Images are resized to 224 × 224 and normalized to the range [0, 1].
+Key characteristics of the dataset:  
 
----
-
-## 3. Dataset Handling & Preprocessing
-
-### 3.1 Dataset Organization
-Raw images are organized class-wise and programmatically split into training, validation, and test sets to avoid data leakage.
-
-The dataset satisfies:
-- No overlap between train, validation, and test sets  
-- Balanced class distribution across splits  
-
-A reproducible Python pipeline is used for shuffling and splitting.
+- **Class Distribution:** Balanced across all four classes to avoid bias.  
+- **Preprocessing:** Images were resized to a uniform resolution and normalized for consistent input to the model.  
+- **Data Augmentation:** Techniques such as rotation, translation, zooming, and horizontal flipping were applied to increase data diversity and improve generalization.  
+- **Dataset Splits:** Divided into training, validation, and test sets to ensure unbiased evaluation and hyperparameter tuning.
 
 ---
 
-### 3.2 Image Preprocessing
-Each image undergoes:
-- Resizing to 224 × 224  
-- Pixel normalization using:
+## Methodology
 
-x_normalized = x / 255  
+### Model Architecture
 
-This ensures compatibility with ImageNet-pretrained weights.
+A transfer learning approach was employed using a pretrained convolutional neural network as a feature extractor. The pretrained network captures high-level visual representations, which are then fine-tuned with additional dense layers to specialize the model for the waste classification task. Dropout layers were incorporated to reduce overfitting and improve generalization.  
 
----
+This design enables leveraging large-scale visual knowledge while maintaining computational efficiency and adaptability to a small, domain-specific dataset.
 
-### 3.3 Data Augmentation
-To improve generalization and reduce overfitting, the following augmentations are applied during training:
+### Training Strategy
 
-- Random rotation (±20°)
-- Horizontal flipping
-- Width and height shifting
-- Zoom augmentation
+The training process incorporated:  
 
-Validation and test datasets are **not augmented** to preserve evaluation integrity.
+- **Augmented Data Input:** To simulate real-world variability in waste images.  
+- **Supervised Learning:** Using categorical cross-entropy loss for multi-class classification.  
+- **Validation Monitoring:** To prevent overfitting and evaluate generalization performance on unseen data.  
+- **Optimization:** Adaptive gradient-based optimizers were applied for faster convergence.
 
----
+### Evaluation Metrics
 
-### 3.4 Class Encoding
-Class labels are automatically encoded into categorical one-hot vectors, enabling optimization using categorical cross-entropy loss.
+Model performance was assessed using standard classification metrics:  
 
----
+- **Accuracy:** Overall correctness of model predictions.  
+- **Precision, Recall, and F1-Score:** To measure the balance between false positives and false negatives for each class.  
+- **Confusion Matrix:** To analyze misclassifications and guide model improvements.  
 
-## 4. Technology Stack
+| Class      | Precision | Recall | F1-Score | Support |
+|------------|-----------|--------|----------|---------|
+| Cardboard  | 1.00      | 0.97   | 0.98     | 61      |
+| Glass      | 0.84      | 0.84   | 0.84     | 76      |
+| Metal      | 0.85      | 0.89   | 0.87     | 62      |
+| Plastic    | 0.85      | 0.84   | 0.84     | 73      |
+| **Accuracy** |           |        | 0.88     | 272     |
+| **Macro Avg** | 0.88      | 0.88   | 0.88     | 272     |
+| **Weighted Avg** | 0.88      | 0.88   | 0.88     | 272     |
 
-### Programming & Libraries
-- **Python 3**
-- **TensorFlow / Keras**
-- **NumPy**
-- **Matplotlib**
-- **Scikit-learn**
 
-### Deep Learning & Computer Vision
-- **MobileNetV2 (ImageNet pre-trained)**
-- **Transfer Learning**
-- **ImageDataGenerator**
+### Error Analysis
 
-### Data Management
-- **SQLite** – Logging image predictions
-- **OS / Shutil / Random** – Dataset handling
-
-### Deployment & Tooling
-- **Streamlit** – Interactive inference interface
-- **Git / GitHub** – Version control
+Misclassifications were studied to identify patterns where the model struggles, such as visually similar classes or images with low quality. This analysis informed decisions on dataset augmentation, class balancing, and potential model enhancements.
 
 ---
 
-## 5. Model Architecture
+## Explainability
 
-### 5.1 Base Network
-The model uses **MobileNetV2** as a frozen feature extractor.
+To ensure transparency, the system uses **Grad-CAM (Gradient-weighted Class Activation Mapping)** to generate visual explanations. Grad-CAM highlights image regions that contributed most to the model’s decision, enabling:  
 
-**Architecture:**
-- MobileNetV2 (without top layers)
-- Global Average Pooling
-- Dense (128 units, ReLU)
-- Dropout (0.3)
-- Dense (Softmax, 4 classes)
-
-Final prediction is computed as:
-
-ŷ = softmax(Wx + b)
+- Verification of model focus on relevant features.  
+- Identification of potential weaknesses in the model.  
+- Increased trust from end users and stakeholders in automated recommendations.
 
 ---
 
-## 6. Training Configuration
-- **Optimizer:** Adam  
-- **Learning Rate:** 0.001  
-- **Loss Function:** Categorical Cross-Entropy  
+## Rule-Based Decision Layer
 
-Loss is defined as:
+Beyond classification, a rule-based layer interprets predictions and provides actionable recommendations:  
 
-L = − Σ (y_c · log(ŷ_c)), for c = 1 to C  
+- Suggests correct bin type for disposal.  
+- Provides material-specific recycling instructions (e.g., cleaning requirements for cardboard and plastics).  
+- Issues warnings when model confidence is low, prompting manual verification.  
 
-- **Batch Size:** 16  
-- **Epochs:** 20  
+This hybrid design ensures that AI-driven predictions are both interpretable and actionable in real-world scenarios.
 
 ---
 
-## 7. Decision-Aware Classification
-To reduce incorrect disposal recommendations, a confidence-based decision mechanism is applied during inference.
+## System Architecture and Deployment
 
-If:
+The system integrates multiple components:  
 
-max(predicted probability) < 0.6  
+- **Deep Learning Model:** Performs image classification.  
+- **Web Interface:** Allows users to upload images and view predictions.  
+- **Decision Engine:** Provides bin guidance and recycling instructions.  
+- **Database Logging:** Captures predictions for auditing, performance monitoring, and continuous learning.  
 
-the prediction is flagged as **low-confidence**, indicating uncertainty or potential misclassification.
-
-This enables:
-- Wrong-bin detection
-- Safer real-world predictions
-- Improved system reliability
+This architecture facilitates scalability, real-time interaction, and long-term analysis of model performance in operational environments.
 
 ---
 
-## 8. Evaluation Metrics
-Model performance is evaluated using:
+## Research Contributions
 
-- Accuracy  
-- Precision  
-- Recall  
-- F1-score  
-- Confusion Matrix  
+This project demonstrates several contributions at a Master’s level in Data Science:  
 
-Metric definitions:
-
-Precision_c = TP_c / (TP_c + FP_c)  
-Recall_c = TP_c / (TP_c + FN_c)  
-
-F1_c = 2 · (Precision_c · Recall_c) / (Precision_c + Recall_c)
+1. **Integration of Transfer Learning and Rule-Based Reasoning:** Combines data-driven AI with domain knowledge for actionable outcomes.  
+2. **Explainable AI Application:** Incorporates visual explanations to improve trust and interpretability.  
+3. **Data Augmentation and Error Analysis:** Applies rigorous preprocessing and dataset enhancement strategies to improve model generalization.  
+4. **End-to-End Deployment:** Bridges the gap between research and practical applications through a deployable web interface and prediction logging system.
 
 ---
 
-## 9. Experimental Results
-- **Overall Accuracy:** 90.74%  
-- Consistent performance across all waste categories  
-- Higher confusion observed between *plastic* and *metal* due to visual similarity  
+## Future Work
 
-Confusion matrix analysis provides detailed class-wise error insights.
+Potential directions for extending this research include:  
 
----
-
-## 10. Inference & Deployment
-The trained model is deployed using **Streamlit** for real-time inference. Users can upload an image and receive:
-
-- Predicted waste category  
-- Model confidence  
-- Decision-aware warning (if applicable)  
-
-Deployment is intended as a **demonstration interface**, not the primary contribution.
+- Expanding the dataset to include additional waste types (organic, hazardous, mixed materials).  
+- Improving robustness under challenging real-world conditions, such as poor lighting or occlusion.  
+- Incorporating active learning to continuously improve the model from user feedback.  
+- Integrating multi-modal inputs, such as sensor data, for more accurate classification.
 
 ---
 
-## 11. Conclusion
-This project demonstrates the effectiveness of **transfer learning–based CNNs** for automated waste classification. The introduction of **decision-aware confidence logic** improves robustness and reliability, making the system suitable for practical waste management scenarios. Future work includes model comparison, fine-tuning, and edge-device optimization.
+## Conclusion
+
+The Smart Waste Decision System demonstrates a **research-oriented, applied approach** to intelligent recycling. By combining deep learning, explainable AI, and rule-based reasoning, it provides a practical and interpretable solution for sustainable waste management. This project is aligned with Master’s-level research standards in Data Science, emphasizing methodological rigor, explainability, and real-world applicability.
+
 
